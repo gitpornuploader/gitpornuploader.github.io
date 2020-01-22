@@ -10,7 +10,18 @@ const Container = styled.div`
 `;
 
 class App extends React.Component{
-    state = initialData;
+    state = {...initialData,
+            "totalFile": 0
+    };
+
+    getRepo = async (url) => {
+        const response = await fetch(url)
+        this.setState({totalFile: response.headers.get('X-Total')})
+    };
+
+    componentWillMount(){
+        this.getRepo('https://gitlab.com/api/v4/projects/16466313/repository/tree?recursive=true&ref=master&per_page=1000')
+    }
 
     onDragStart = (start) => {
         document.body.style.color = 'orange';
@@ -117,7 +128,20 @@ class App extends React.Component{
     }
 
     render() {
+        const { totalFile } = this.state
+        const items = [...Array(Number(totalFile)).keys()]
         return (
+            <div>
+            Anime: Tate no Yuusha
+            {items && items.map(e => {
+            return (<div>
+            <video width="320" height="240" controls>
+                <source src={`https://gitlab.com/github-flix1/tate-no-yuusha-no-nariagari/parte1/raw/master/${e+1}.mp4`} 
+                type="video/mp4"></source>
+            </video>
+            </div>);
+            })}
+            
         <DragDropContext
             onDragEnd={this.onDragEnd}
             onDragStart={this.onDragStart}
@@ -143,6 +167,7 @@ class App extends React.Component{
                 )}
             </Droppable>
         </DragDropContext>
+        </div>
         );
     }
 }
